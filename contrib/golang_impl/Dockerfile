@@ -14,5 +14,8 @@ ADD ./bin/docker-registry /bin/docker-registry
 #
 VOLUME ["/data/docker_index"]
 
-EXPOSE 80
-CMD ["/bin/docker-registry", "-l", "0.0.0.0:80", "-D", "true"]
+EXPOSE 5000
+
+# TODO: Remove the -D=true (debug)
+#
+CMD ["/bin/docker-registry", "-l", "0.0.0.0:5000", "-D", "true"]
