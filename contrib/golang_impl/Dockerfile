@@ -1,16 +1,18 @@
-FROM ubuntu:precise
+FROM scratch
+MAINTAINER Michal Fojtik <mfojtik@redhat.com>
 
-run apt-get install -y curl build-essential git-core
+# This is an ugly hack to create directories without 'mkdir' command.
+#
+ADD ./tmp/.gitignore /var/run/.gitignore
+ADD ./tmp/.gitignore /data/docker_index/.gitignore
 
-# Install Go (this is copied from the docker Dockerfile)
-run curl -s https://go.googlecode.com/files/go1.1.1.linux-amd64.tar.gz | tar -v -C /usr/local -xz
-env PATH  /usr/local/go/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
-env GOPATH  /go
-env CGO_ENABLED 0
-run cd /tmp && echo 'package main' > t.go && go test -a -i -v
+# Add statically compiled docker-registry
+#
+ADD ./bin/docker-registry /bin/docker-registry
 
-run git clone https://github.com/docker/docker-registry.git /docker-registry.git
-run cd /docker-registry.git/contrib/golang_impl && make && cp bin/docker-registry /usr/local/bin/
+# You can have external mounted volume for the docker images
+#
+VOLUME ["/data/docker_index"]
 
-expose 80
-cmd /usr/local/bin/docker-registry
+EXPOSE 80
+CMD ["/bin/docker-registry", "-l", "0.0.0.0:80", "-D", "true"]
